@@ -1,0 +1,31 @@
+#parse("/array.java.vm")
+#if ($packageName)
+package $packageName;
+#end##
+
+import model_Runner.model_TestRunner;
+import io.cucumber.junit.Cucumber;
+import io.cucumber.junit.CucumberOptions;
+import model_Runner.model_TestRunner;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+
+@RunWith(Cucumber.class)
+@CucumberOptions(
+        features = {"$featureFile"},
+        plugin = #stringArray($plugins),
+        monochrome = true,
+        glue = #stringArray($glue))
+public class $className {
+
+    @BeforeClass
+    public static synchronized void setupBeforeClass() throws Exception {
+        model_TestRunner.setupBeforeClass();
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        model_TestRunner.tearDownAfterClass();
+    }
+}

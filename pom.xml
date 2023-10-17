@@ -1,0 +1,332 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>CucumberProject</groupId>
+    <artifactId>My-test-automation</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <profiles>
+        <profile>
+            <id>ide</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <varSrc>POM_IDE</varSrc>
+            </properties>
+        </profile>
+        <profile>
+            <id>CloudBees</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <selenium.server>BOX</selenium.server>
+                <cucumber.filter.tags>@smoke</cucumber.filter.tags>
+                <!-- //ENH: It would be useful for CloudBees to have its own token. This is shared with QA users -->
+                <selenium.box.token>e08502d7-7d10-46</selenium.box.token>
+                <Jcode>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</Jcode>
+                <Jcomp>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</Jcomp>
+                <Jfile>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</Jfile>
+                <Jmain>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</Jmain>
+                <Jmodel>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</Jmodel>
+                <Jparser>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</Jparser>
+                <Jprocessing>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</Jprocessing>
+                <Jtree>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</Jtree>
+                <Jutil>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</Jutil>
+                <Jjvm>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</Jjvm>
+                <externalFilesWrite>target/</externalFilesWrite>
+                <cucumberReportDir>target</cucumberReportDir>
+                <screenshotDir>target</screenshotDir>
+                <maven-cucumber-reporting_phase/>
+                <varSrc>POM_CloudBees</varSrc>
+            </properties>
+        </profile>
+    </profiles>
+    <!-- Maven command-line build/test: -->
+    <!-- mvn clean verify -Dbrowser=Chrome -Denvironment=DEVSBTEST -Dcucumber.filter.tags=@smoke -DvarSrc=CMD_LN
+    Overriding cucumber.filter.tags is optional
+//ENH: WIP: The old cucumber.options appears to work with the Parallel, investigating where the new switch isn't carried through.
+    varSrc is  available to be set as a "run from" ; ex. varSrc=Jenkins -->
+    <properties>
+        <cucumber.filter.tags>@smoke</cucumber.filter.tags>
+        <cucumber.options>--tags ${cucumber.filter.tags}</cucumber.options>
+        <maven-cucumber-reporting_phase>verify</maven-cucumber-reporting_phase>
+        <environment>VALAWS</environment>
+        <browser>Chrome</browser>
+        <password.prefix.current>P!na!ples#IC</password.prefix.current>
+        <password.prefix.new/>
+        <!-- utilParallelRequestsFile>assignsRole_Parallel.xlsx</utilParallelRequestsFile -->
+        <utilParallelRequestsFile>assignsRoles_MultipleAssignments_SBPCF.xlsx</utilParallelRequestsFile>
+        <!-- selenium.server: BOX for cms.gov Selenium Box , GRID for local Selenium Grid; else: individual WebDriver browser  -->
+        <selenium.server>LOCAL</selenium.server>
+        <!-- Also, See PROFILE selenium.server>BOX</selenium.server -->
+        <selenium.box.token>abc123456789</selenium.box.token>
+        <!-- WIP: Selenium Box can capture real-time video. Might be useful to use API to fetch videos for failed TCs -->
+        <e34.video>false</e34.video>
+        <!-- Parallel settings -->
+        <forkCount>3</forkCount>
+        <!-- rerunFailingTestsCount > 1 will automatically rerun failures (works OK)
+          -> AND Label in report as "FLAKY" (WIP: only appears in surefire xml. Cucumber will overwrite with a later PASS) -->
+        <rerunFailingTestsCount>0</rerunFailingTestsCount>
+        <GRID_URL>http://localhost:4444/wd/hub</GRID_URL>
+        <BOX_URL>https://selenium.cloud.com/wd/hub</BOX_URL>
+        <BOX_API_DOWNLOAD_FILE>https://selenium.cloud.cms.gov/e34/api/downloads?session=</BOX_API_DOWNLOAD_FILE>
+        <externalFilesRead>target/test-classes/externFiles/</externalFilesRead>
+        <!-- WIP: Save within Reports, that are running logs, etc; NOTE: is currently wiped out with every build -->
+        <externalFilesWrite>target/cucumber-html-reports/</externalFilesWrite>
+        <cucumberReportDir>target</cucumberReportDir>
+        <screenshotDir>target/cucumber-html-reports</screenshotDir>
+        <Jcode/>
+        <Jcomp/>
+        <Jfile/>
+        <Jmain/>
+        <Jmodel/>
+        <Jparser/>
+        <Jprocessing/>
+        <Jtree/>
+        <Jutil/>
+        <Jjvm/>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>4.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <version>5.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <version>7.3.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>7.3.3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>datatable</artifactId>
+            <version>7.3.3</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>5.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.14.1</version>
+        </dependency>
+
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <verbose>true</verbose>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <fork>true</fork>
+                    <compilerArgs>
+                        <arg>-Xlint:all</arg>
+                        <arg>${Jcode}</arg>
+                        <arg>${Jcomp}</arg>
+                        <arg>${Jfile}</arg>
+                        <arg>${Jmain}</arg>
+                        <arg>${Jmodel}</arg>
+                        <arg>${Jparser}</arg>
+                        <arg>${Jprocessing}</arg>
+                        <arg>${Jtree}</arg>
+                        <arg>${Jutil}</arg>
+                        <arg>${Jjvm}</arg>
+                    </compilerArgs>
+                    <!--for unmappable characters in classes-->
+                    <encoding>UTF-8</encoding>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
+                    <!--for lombok annotations to resolve-->
+                    <!--contradictory to maven, intelliJ fails with this-->
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.12</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>write-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <outputFile>${project.build.outputDirectory}/properties-from-pom.properties</outputFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.temyers</groupId>
+                <artifactId>cucumber-jvm-parallel-plugin</artifactId>
+                <version>5.0.0</version>
+                <executions>
+                    <execution>
+                        <id>generateRunners</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>generateRunners</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Mandatory -->
+                            <!-- List of package names to scan for glue code. -->
+                            <glue>
+                                <package>com.model</package>
+                            </glue>
+                            <!-- These are optional, with the default values -->
+                            <!-- Where to output the generated tests -->
+                            <outputDirectory>${project.build.directory}/generated-test-sources/cucumber</outputDirectory>
+                            <!-- The directory, which must be in the root of the runtime classpath, containing your feature files.  -->
+                            <featuresDirectory>src/test/resources/</featuresDirectory>
+                            <!-- Directory where the cucumber report files shall be written  -->
+                            <cucumberOutputDir>target/cucumber-parallel</cucumberOutputDir>
+                            <!-- List of cucumber plugins. When none are provided the json formatter is used. For more
+                                 advanced usage see section about configuring cucumber plugins -->
+                            <plugins>
+                                <plugin>
+                                    <name>pretty</name>
+                                </plugin>
+                                <plugin>
+                                    <name>json</name>
+                                </plugin>
+                            </plugins>
+                            <!-- CucumberOptions.strict property -->
+                            <strict>true</strict>
+                            <!-- CucumberOptions.monochrome property -->
+                            <monochrome>true</monochrome>
+                            <!-- The tags to run, maps to CucumberOptions.tags property. Default is no tags.
+                            <tags>
+                                <tag>${cucumber.tag}</tag>
+                            </tags -->
+                            <!-- Generate TestNG runners instead of JUnit ones. -->
+                            <useTestNG>false</useTestNG>
+                            <!-- The naming scheme to use for the generated test classes.  One of ['simple', 'feature-title', 'pattern'] -->
+                            <namingScheme>simple</namingScheme>
+                            <!-- The class naming pattern to use.  Only required/used if naming scheme is 'pattern'.-->
+                            <namingPattern>Parallel{c}IT</namingPattern>
+                            <!-- One of [SCENARIO, FEATURE]. SCENARIO generates one runner per scenario.  FEATURE generates a runner per feature. -->
+                            <parallelScheme>FEATURE</parallelScheme>
+                            <!-- Specify a custom template for the generated sources (this is a path relative to the project base directory) -->
+                            <customVmTemplate>src/test/java/model_Runner/junit-cucumber-runner.vm</customVmTemplate>
+                            <!-- Specify a custom package name for generated sources. Default is no package.-->
+                            <packageName>model_Runner</packageName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M5</version>
+                <configuration>
+                    <!-- create report regardless of individual test results -->
+                    <testFailureIgnore>true</testFailureIgnore>
+                    <printSummary>true</printSummary>
+                    <!-- parallel: {@code suites}, {@code suitesAndClasses}, {@code suitesAndMethods}, {@code classesAndMethods}, {@code all}  -->
+                    <parallel>classes</parallel>
+                    <threadCount>1</threadCount>
+                    <perCoreThreadCount>false</perCoreThreadCount>
+                    <forkCount>${forkCount}</forkCount>
+                    <reuseForks>false</reuseForks>
+                    <!-- useUnlimitedThreads>true</useUnlimitedThreads -->
+                    <!-- parallelTestsTimeoutForcedInSeconds>60</parallelTestsTimeoutForcedInSeconds -->
+                    <!-- runOrder>Balanced</runOrder -->
+                    <runOrder>alphabetical</runOrder>
+                    <rerunFailingTestsCount>${rerunFailingTestsCount}</rerunFailingTestsCount>
+                    <includes>
+                        <include>**/Parallel*IT.java</include>
+                    </includes>
+                    <systemPropertyVariables>
+                        <!-- The first should be correct for updated Cucumber; however second seems to be taken by SureFire -->
+                        <cucumber.filter.tags>${cucumber.filter.tags}</cucumber.filter.tags>
+                        <cucumber.options>${cucumber.options}</cucumber.options>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>net.masterthought</groupId>
+                <artifactId>maven-cucumber-reporting</artifactId>
+                <version>5.6.1</version>
+                <executions>
+                    <execution>
+                        <id>execution</id>
+                        <phase>${maven-cucumber-reporting_phase}</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <projectName>${project.build.finalName}</projectName>
+                            <inputDirectory>${project.build.directory}/cucumber-parallel</inputDirectory>
+                            <outputDirectory>${cucumberReportDir}</outputDirectory>
+                            <jsonFiles>
+                                <param>**/*.json</param>
+                                <runOrder>alphabetical</runOrder>
+                            </jsonFiles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
